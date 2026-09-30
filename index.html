@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HeatTrace Lite v1.0｜無料体験版</title>
+<style>
+:root{--bg:#0f1720;--panel:#18232f;--card:#12202a;--line:#34495e;--text:#f5f7fa;--muted:#aebdca;--accent:#46b3ff;--good:#52d273;--bad:#ff7a7a;--warn:#ffc857}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+.wrap{max-width:920px;margin:auto;padding:12px}.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+h1{font-size:25px;margin:4px 0}.sub{font-size:12px;color:var(--muted);margin-bottom:12px}h2{font-size:17px;margin-top:0}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}input,select{width:100%;min-height:44px;border:1px solid #415769;background:#111c25;color:white;border-radius:10px;padding:9px;font-size:16px}
+button,.buybtn{min-height:44px;border-radius:10px;border:1px solid var(--line);background:#263746;color:white;padding:8px 13px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
+button.primary{background:var(--accent);color:#06223b}button.danger{background:#6b2a2a}.buybtn{background:var(--good);color:#062d14;border-color:var(--good)}
+.toolbar,.btnrow{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.btnrow{margin-top:8px}
+.line{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:7px 0;font-size:14px}.line strong{text-align:right;word-break:break-all}
+.muted{font-size:11px;color:var(--muted)}.ok{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.status{font-size:12px;min-height:18px;margin-top:7px;white-space:pre-wrap;word-break:break-all}
+.req{color:var(--bad)}
+.tag{display:inline-block;background:#23445b;padding:5px 9px;border-radius:999px;font-size:12px;margin-bottom:8px}
+.notice{background:#332b13;border:1px solid #7a6520;padding:10px;border-radius:10px;margin-top:10px;font-size:12px}
+[hidden]{display:none!important}
+@media(max-width:620px){.grid2{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+
+<div class="box" style="border-color:var(--accent)">
+<span class="tag">購入前・無料体験版</span>
+<h1>HeatTrace Lite v1.0</h1>
+<div class="sub" style="margin-bottom:0">材料を切っても、Heat / Cert の系譜を切らない。</div>
+<div class="notice">
+<b>これは体験専用デモです。</b><br>
+架空のサンプル材料を1本用意しています。自由に登録・切断・検索・系譜チェックをお試しください。<br>
+<b>実際の業務データや機密情報は入力しないでください。</b>入力内容は保存されず、ページを閉じる・再読み込みすると消えます。CSV出力・JSONバックアップ/復元・端末への継続保存は製品版のみの機能です。
+</div>
+<div class="btnrow" style="margin-top:10px">
+<a class="buybtn" href="https://ossan4.gumroad.com/l/heattrace-lite-jp" target="_blank" rel="noopener noreferrer">製品版を見る（¥4,980）</a>
+</div>
+</div>
+
+<section class="box"><h2>① 親材料を登録</h2><div class="grid2">
+<div><label>材料ID <span class="req">*</span></label><input id="materialId" placeholder="例 MAT-001"></div>
+<div><label>Heat番号 <span class="req">*</span></label><input id="heat" placeholder="例 H-84521"></div>
+<div><label>材質 / Grade</label><input id="grade" placeholder="例 SS400"></div>
+<div><label>サイズ(表記)</label><input id="size" placeholder="例 角パイプ 50×50×2.3"></div>
+<div><label>全長 mm <span class="req">*</span></label><input id="totalLength" type="number" step="any" min="0" placeholder="例 6000"></div>
+<div><label>仕入先</label><input id="supplier" placeholder="例 Supplier A"></div>
+<div><label>PO / 入荷番号</label><input id="po" placeholder="例 PO-1001"></div>
+<div><label>Cert参照名</label><input id="cert" placeholder="例 MTR_H-84521.pdf"></div>
+<div><label>保管場所</label><input id="location" placeholder="例 棚A"></div>
+</div><button id="addParent" class="primary" type="button" style="margin-top:8px">親材料を登録</button><div id="addMsg" class="status"></div></section>
+
+<section class="box"><h2>② 切断・分割</h2><div class="grid2">
+<div><label>切る材料(残りがあるもの)</label><select id="parentSelect"></select></div>
+<div><label>Job番号(空なら在庫のまま)</label><input id="job" placeholder="例 JOB-001"></div>
+<div><label>子材の長さ mm</label><input id="childLength" type="number" step="any" min="0" placeholder="例 1500"></div>
+<div><label>作る本数(最大100)</label><input id="childQty" type="number" min="1" value="1"></div>
+<div><label>切りしろ mm(1本ごと・不要なら0)</label><input id="childKerf" type="number" step="any" min="0" value="0"></div>
+</div><div id="splitPreview" class="muted" style="margin-top:6px"></div>
+<button id="split" class="primary" type="button" style="margin-top:8px">分割してHeat/Certを継承</button><div id="splitMsg" class="status"></div></section>
+
+<section class="box"><h2>③ 検索・修正</h2><div class="grid2">
+<div><label>Heat / Job / 材料ID / Grade / 保管場所</label><input id="search" placeholder="例 H-84521"></div>
+<div><label>絞り込み</label><select id="stateFilter"><option value="">すべて</option><option value="stock">在庫</option><option value="issued">Job払い出し</option><option value="unverified">現物未確認</option></select></div>
+</div><div id="listMsg" class="status"></div><div id="results" style="margin-top:9px"></div></section>
+
+<section class="box"><h2>④ 系譜チェック</h2>
+<div class="toolbar"><button id="audit" type="button">全件チェック</button></div>
+<div id="auditMsg" class="status"></div>
+<div class="status warn">無料体験版では、CSV出力・JSONバックアップ/復元・端末への継続保存は利用できません。</div>
+</section>
+
+<section class="box"><h2>⑤ 製品版で使える主な機能</h2><div class="grid2">
+<div class="card">Heat / Grade / PO / Cert 系譜</div>
+<div class="card">残材・長さ管理</div>
+<div class="card">Job追跡・検索</div>
+<div class="card">CSV出力</div>
+<div class="card">JSONバックアップ / 復元</div>
+<div class="card">記録整合チェック</div>
+</div></section>
+
+<section class="box"><h2>⑥ 無料体験版について</h2><div class="muted">
+・自由に架空の材料情報を入力して、親材登録・切断・残材・Job・検索・系譜チェック・編集・削除・現物確認をお試しください。実際の業務データや機密情報は入力しないでください。<br>
+・入力内容は保存・外部送信されず、ページを閉じる・再読み込みすると消えます。CSV出力・JSONバックアップ/復元・継続保存は製品版の機能です。<br>
+・「全件チェック」のPASSは記録同士に矛盾がないという意味だけです。材料規格への適合、Cert真正性、現物との一致、品質合否を保証しません。
+</div>
+<div class="btnrow" style="margin-top:12px">
+<a class="buybtn" href="https://ossan4.gumroad.com/l/heattrace-lite-jp" target="_blank" rel="noopener noreferrer">HeatTrace Lite v1.0 を見る（¥4,980）</a>
+</div>
+</section>
+
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+/* 無料体験版: 永続保存・外部送信・CSV/バックアップ機能なし */
+const INH=['heat','grade','po','cert','supplier','size'];
+let rows=[],editing=null,armed=null,armT=null;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const rnd=n=>Math.round(n*1000)/1000;
+function num(v){const s=String(v==null?'':v).trim();if(s==='')return null;const n=Number(s);return isFinite(n)?n:NaN}
+function msg(id,t,c){const e=$(id);e.textContent=t;e.className='status '+(c||'')}
+
+function norm(r){
+ const L=(r.lengthMm===null||r.lengthMm===undefined||r.lengthMm==='')?null:Number(r.lengthMm);
+ return {id:String(r.id),parentId:r.parentId?String(r.parentId):null,rootId:String(r.rootId||r.id),
+  heat:String(r.heat==null?'':r.heat),grade:String(r.grade==null?'':r.grade),size:String(r.size==null?'':r.size),
+  lengthMm:(L!==null&&isFinite(L))?L:null,kerf:Number(r.kerf)||0,seq:Number(r.seq)||0,
+  supplier:String(r.supplier==null?'':r.supplier),po:String(r.po==null?'':r.po),cert:String(r.cert==null?'':r.cert),
+  location:String(r.location==null?'':r.location),job:String(r.job==null?'':r.job),
+  state:(r.job||r.state==='issued')?'issued':'stock',
+  verified:!!r.verified,verifiedAt:String(r.verifiedAt||''),createdAt:String(r.createdAt||'')};
+}
+
+const byId=id=>rows.find(r=>r.id===id);
+const kids=id=>rows.filter(r=>r.parentId===id);
+function used(r){return kids(r.id).reduce((s,c)=>s+(c.lengthMm||0)+(c.kerf||0),0)}
+function remain(r){return r.lengthMm===null?null:rnd(r.lengthMm-used(r))}
+function desc(id){const out=[],q=[id],seen=new Set([id]);
+ while(q.length){const x=q.shift();rows.forEach(r=>{if(r.parentId===x&&!seen.has(r.id)){seen.add(r.id);out.push(r);q.push(r.id)}})}
+ return out}
+function nextId(p){let id;do{p.seq=(p.seq||0)+1;id=p.id+'-'+String(p.seq).padStart(2,'0')}while(rows.some(r=>r.id===id));return id}
+
+function addParent(){
+ const id=$('materialId').value.trim(),heat=$('heat').value.trim(),L=num($('totalLength').value);
+ if(!id)return msg('addMsg','材料IDが必要です','bad');
+ if(!heat)return msg('addMsg','Heat番号が必要です','bad');
+ if(L===null||isNaN(L)||L<=0)return msg('addMsg','全長mmを0より大きい数字で入れてください','bad');
+ if(rows.some(r=>r.id===id))return msg('addMsg','同じ材料IDが既にあります','bad');
+ rows.push(norm({id,parentId:null,rootId:id,heat,grade:$('grade').value.trim(),size:$('size').value.trim(),lengthMm:L,
+  supplier:$('supplier').value.trim(),po:$('po').value.trim(),cert:$('cert').value.trim(),location:$('location').value.trim(),
+  job:'',state:'stock',createdAt:new Date().toISOString()}));
+ const noCert=$('cert').value.trim()==='';
+ ['materialId','heat','cert','totalLength'].forEach(k=>$(k).value='');
+ refresh();
+ msg('addMsg',id+' を登録しました'+(noCert?'(Cert未登録のまま。後で「編集」から入れられます)':''),'ok');
+}
+function split(){
+ const p=byId($('parentSelect').value);
+ if(!p)return msg('splitMsg','切る材料を選んでください','bad');
+ if(p.lengthMm===null)return msg('splitMsg','この材料は全長が未設定です。検索欄から「編集」して全長を入れてください','bad');
+ const q=Math.floor(num($('childQty').value)),len=num($('childLength').value),kerf=num($('childKerf').value===''?'0':$('childKerf').value),job=$('job').value.trim();
+ if(!(q>=1&&q<=100))return msg('splitMsg','本数は1〜100で入れてください','bad');
+ if(len===null||isNaN(len)||len<=0)return msg('splitMsg','子材の長さを確認してください','bad');
+ if(kerf===null||isNaN(kerf)||kerf<0)return msg('splitMsg','切りしろは0以上で入れてください','bad');
+ const need=rnd(q*(len+kerf)),rem=remain(p);
+ if(need>rem+1e-9)return msg('splitMsg','残り '+rem+'mm に対して必要 '+need+'mm です。長さ・本数・切りしろを見直してください','bad');
+ const now=new Date().toISOString(),made=[];
+ for(let i=0;i<q;i++){
+  made.push(norm({id:nextId(p),parentId:p.id,rootId:p.rootId,heat:p.heat,grade:p.grade,size:p.size,lengthMm:len,kerf,
+   supplier:p.supplier,po:p.po,cert:p.cert,location:'',job,state:job?'issued':'stock',createdAt:now}));
+ }
+ rows.push(...made);refresh();
+ msg('splitMsg',q+'本作成('+made[0].id+(q>1?' 〜 '+made[q-1].id:'')+')。Heat / Grade / PO / Certを継承。親の残り '+remain(p)+'mm','ok');
+}
+function parentOptions(){
+ const s=$('parentSelect'),cur=s.value;s.innerHTML='';
+ rows.filter(r=>r.state==='stock'&&r.lengthMm!==null&&remain(r)>0).forEach(r=>{
+  const o=document.createElement('option');o.value=r.id;o.textContent=r.id+' / '+r.heat+' / 残'+remain(r)+'mm';s.append(o)});
+ if([...s.options].some(o=>o.value===cur))s.value=cur;
+}
+function updatePreview(){
+ const p=byId($('parentSelect').value),el=$('splitPreview');
+ if(!p){el.textContent='切れる材料がありません(残りなし、または全長未設定)';el.className='muted';return}
+ const len=num($('childLength').value)||0,kerf=num($('childKerf').value)||0,q=Math.floor(num($('childQty').value)||0),rem=remain(p);
+ const after=rnd(rem-q*(len+kerf));
+ el.textContent='全長 '+p.lengthMm+'mm / 残 '+rem+'mm'+(len>0&&q>0?' → 実行後の残 '+after+'mm':'');
+ el.className='muted'+(len>0&&q>0&&after<0?' bad':'');
+}
+
+function line(k,v,cls){return '<div class="line"><span>'+esc(k)+'</span><strong'+(cls?' class="'+cls+'"':'')+'>'+v+'</strong></div>'}
+function field(f,label,val,type){return '<div><label>'+esc(label)+'</label><input data-f="'+f+'" value="'+esc(val)+'"'+(type==='num'?' type="number" step="any" min="0"':'')+'></div>'}
+function editForm(r){
+ let h='<div class="grid2" style="margin-top:8px">';
+ if(!r.parentId){
+  h+=field('heat','Heat番号 *',r.heat)+field('grade','Grade',r.grade)+field('size','サイズ(表記)',r.size)+field('lengthMm','全長 mm *',r.lengthMm===null?'':r.lengthMm,'num')
+   +field('supplier','仕入先',r.supplier)+field('po','PO / 入荷番号',r.po)+field('cert','Cert参照名',r.cert)+field('location','保管場所',r.location);
+  h+='</div><div class="muted" style="margin-top:6px">Heat・Grade・サイズ・仕入先・PO・Certを変えると、切り出した子材すべてにも反映されます(現物確認はやり直しになります)。</div>';
+ }else{
+  h+=field('lengthMm','長さ mm *',r.lengthMm===null?'':r.lengthMm,'num')+field('kerf','切りしろ mm',r.kerf,'num')+field('job','Job番号(空で在庫に戻す)',r.job)+field('location','保管場所',r.location);
+  h+='</div><div class="muted" style="margin-top:6px">Heat・Certなどは親(ROOT: '+esc(r.rootId)+')で変更してください。</div>';
+ }
+ return h+'<div class="status bad" data-msg></div>';
+}
+function card(r){
+ const ed=editing===r.id,rem=remain(r);
+ let h='<strong>'+esc(r.id)+'</strong><div class="muted">Heat '+esc(r.heat||'(空)')+' / '+esc(r.grade)+' / '+(r.state==='stock'?'在庫':'Job払い出し')+'</div>';
+ if(ed){h+=editForm(r)}
+ else{
+  h+=line('親',esc(r.parentId||'ROOT'))+line('Root',esc(r.rootId))+line('サイズ',esc(r.size||'-'))
+   +line('長さ',r.lengthMm===null?'未設定':esc(r.lengthMm+'mm'+(r.state==='stock'&&rem!==null?' / 残 '+rem+'mm':''))+(r.kerf?esc(' (切りしろ'+r.kerf+')'):''),r.lengthMm===null?'warn':'')
+   +line('Job',esc(r.job||'-'))+line('保管',esc(r.location||'-'))
+   +line('Cert',r.cert?esc(r.cert):'未登録',r.cert?'':'warn')+line('PO',esc(r.po||'-'))
+   +line('現物確認',r.verified?'✓ '+esc(new Date(r.verifiedAt).toLocaleDateString('ja-JP')):'未',r.verified?'ok':'muted');
+ }
+ h+='<div class="btnrow">';
+ if(ed){h+='<button class="primary" type="button" data-act="saveedit" data-id="'+esc(r.id)+'">保存</button><button type="button" data-act="cancel" data-id="'+esc(r.id)+'">キャンセル</button>'}
+ else{
+  const n=desc(r.id).length;
+  h+='<button type="button" data-act="verify" data-id="'+esc(r.id)+'">'+(r.verified?'現物確認を外す':'現物確認済みにする')+'</button>'
+   +'<button type="button" data-act="edit" data-id="'+esc(r.id)+'">編集</button>'
+   +'<button class="danger" type="button" data-act="del" data-id="'+esc(r.id)+'">'+(armed===r.id?'本当に削除'+(n?'(子孫'+n+'件も)':''):'削除')+'</button>';
+ }
+ return h+'</div>';
+}
+function render(){
+ const q=$('search').value.trim().toLowerCase(),st=$('stateFilter').value,host=$('results');host.innerHTML='';
+ const list=rows.filter(r=>{
+  if(st==='unverified'&&r.verified)return false;
+  if((st==='stock'||st==='issued')&&r.state!==st)return false;
+  return !q||[r.id,r.parentId,r.rootId,r.heat,r.grade,r.job,r.po,r.cert,r.supplier,r.location].join(' ').toLowerCase().includes(q);
+ }).reverse();
+ if(!list.length){host.innerHTML='<div class="muted">該当なし</div>';return}
+ list.slice(0,100).forEach(r=>{const d=document.createElement('div');d.className='card';d.innerHTML=card(r);host.append(d)});
+ if(list.length>100){const d=document.createElement('div');d.className='muted';d.textContent='ほか '+(list.length-100)+' 件(検索で絞り込んでください)';host.append(d)}
+}
+
+function toggleVerify(id){const r=byId(id);if(!r)return;r.verified=!r.verified;r.verifiedAt=r.verified?new Date().toISOString():'';render()}
+function saveEdit(id,cardEl){
+ const r=byId(id);if(!r)return;const v={};
+ cardEl.querySelectorAll('[data-f]').forEach(i=>v[i.dataset.f]=i.value.trim());
+ const em=cardEl.querySelector('[data-msg]'),err=t=>{em.textContent=t};
+ if(!r.parentId){
+  if(!v.heat)return err('Heat番号は必須です');
+  const L=num(v.lengthMm);if(L===null||isNaN(L)||L<=0)return err('全長は0より大きい数字で入れてください');
+  if(L<used(r)-1e-9)return err('すでに切り出した分('+rnd(used(r))+'mm)より短くできません');
+  const chg=['heat','grade','cert'].some(k=>r[k]!==v[k]);
+  const ds=desc(r.id);
+  INH.forEach(k=>{r[k]=v[k];ds.forEach(d=>{d[k]=v[k]})});
+  r.lengthMm=L;r.location=v.location;
+  if(chg){r.verified=false;r.verifiedAt='';ds.forEach(d=>{d.verified=false;d.verifiedAt=''})}
+  msg('listMsg',id+' を更新しました'+(ds.length?'(子材'+ds.length+'件にも反映)':''),'ok');
+ }else{
+  const L=num(v.lengthMm),K=v.kerf===''?0:num(v.kerf);
+  if(L===null||isNaN(L)||L<=0)return err('長さは0より大きい数字で入れてください');
+  if(K===null||isNaN(K)||K<0)return err('切りしろは0以上で入れてください');
+  if(L<used(r)-1e-9)return err('この材からさらに切り出した分('+rnd(used(r))+'mm)より短くできません');
+  const p=byId(r.parentId);
+  if(p&&p.lengthMm!==null){const nr=rnd(remain(p)+(r.lengthMm||0)+(r.kerf||0)-L-K);if(nr<-1e-9)return err('親の残りが足りません(あと '+(-nr)+'mm 超過)')}
+  r.lengthMm=L;r.kerf=K;r.job=v.job;r.state=v.job?'issued':'stock';r.location=v.location;
+  msg('listMsg',id+' を更新しました','ok');
+ }
+ editing=null;refresh();
+}
+function delRow(id){
+ if(armed!==id){armed=id;clearTimeout(armT);armT=setTimeout(()=>{armed=null;render()},4000);render();return}
+ const del=new Set([id].concat(desc(id).map(x=>x.id)));
+ rows=rows.filter(r=>!del.has(r.id));armed=null;clearTimeout(armT);if(editing&&del.has(editing))editing=null;
+ refresh();msg('listMsg',del.size+'件を削除しました(親の残りは自動で戻ります)','ok');
+}
+
+function audit(){
+ const errs=[],map=new Map();
+ rows.forEach(r=>{if(map.has(r.id))errs.push(r.id+': IDが重複');map.set(r.id,r)});
+ let noCert=0,noLen=0,unver=0;
+ rows.forEach(r=>{
+  if(!String(r.heat).trim())errs.push(r.id+': Heat番号が空');
+  if(r.parentId){
+   const p=map.get(r.parentId);
+   if(!p)errs.push(r.id+': 親('+r.parentId+')が存在しない');
+   else['heat','grade','po','cert','supplier','rootId'].forEach(k=>{if(r[k]!==p[k])errs.push(r.id+': '+k+'が親と不一致')});
+  }else if(r.rootId!==r.id)errs.push(r.id+': rootIdが自分と不一致');
+  let cur=r,n=0;while(cur&&cur.parentId&&n<10000){cur=map.get(cur.parentId);n++}
+  if(n>=10000)errs.push(r.id+': 親子の循環');
+  const rm=remain(r);if(rm!==null&&rm<-1e-9)errs.push(r.id+': 切り出し合計が長さを超過('+(-rm)+'mm)');
+  if(!r.cert)noCert++;if(r.lengthMm===null)noLen++;if(!r.verified)unver++;
+ });
+ const warn=[];if(noCert)warn.push('Cert未登録 '+noCert+'件');if(noLen)warn.push('長さ未設定 '+noLen+'件');if(unver)warn.push('現物未確認 '+unver+'件');
+ let t=(errs.length?'FAIL '+errs.length+'件の矛盾':'PASS(記録の整合のみ)')+' / 検査 '+rows.length+'件';
+ if(errs.length)t+='\n'+errs.slice(0,20).join('\n')+(errs.length>20?'\n…ほか'+(errs.length-20)+'件':'');
+ if(warn.length)t+='\n注意: '+warn.join(' / ');
+ t+='\n※現物の刻印・Cert内容との一致は確認していません。';
+ msg('auditMsg',t,errs.length?'bad':(warn.length?'warn':'ok'));
+}
+
+$('results').addEventListener('click',e=>{
+ const b=e.target.closest('button[data-act]');if(!b)return;
+ const id=b.dataset.id,act=b.dataset.act;
+ if(act==='verify')toggleVerify(id);
+ else if(act==='edit'){editing=id;armed=null;render()}
+ else if(act==='cancel'){editing=null;render()}
+ else if(act==='saveedit')saveEdit(id,b.closest('.card'));
+ else if(act==='del')delRow(id);
+});
+function seedDemo(){
+ rows=[norm({id:'MAT-DEMO-001',parentId:null,rootId:'MAT-DEMO-001',heat:'H-DEMO-84521',grade:'SS400',size:'角パイプ 50×50×2.3',
+  lengthMm:6000,supplier:'デモ鋼材',po:'PO-DEMO-001',cert:'MTR-DEMO-84521.pdf',location:'棚A',job:'',state:'stock',createdAt:new Date().toISOString()})];
+}
+function refresh(){parentOptions();render();updatePreview()}
+$('addParent').addEventListener('click',addParent);
+$('split').addEventListener('click',split);
+['parentSelect','childLength','childQty','childKerf'].forEach(k=>{$(k).addEventListener('input',updatePreview);$(k).addEventListener('change',updatePreview)});
+$('search').addEventListener('input',()=>{editing=null;armed=null;render()});
+$('stateFilter').addEventListener('change',()=>{editing=null;armed=null;render()});
+$('audit').addEventListener('click',audit);
+seedDemo();refresh();
+})();
+</script></body></html>
