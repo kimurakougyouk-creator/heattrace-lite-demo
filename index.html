@@ -138,8 +138,8 @@ function split(){
  const p=byId($('parentSelect').value);
  if(!p)return msg('splitMsg','切る材料を選んでください','bad');
  if(p.lengthMm===null)return msg('splitMsg','この材料は全長が未設定です。検索欄から「編集」して全長を入れてください','bad');
- const q=Math.floor(num($('childQty').value)),len=num($('childLength').value),kerf=num($('childKerf').value===''?'0':$('childKerf').value),job=$('job').value.trim();
- if(!(q>=1&&q<=100))return msg('splitMsg','本数は1〜100で入れてください','bad');
+ const q=num($('childQty').value),len=num($('childLength').value),kerf=num($('childKerf').value===''?'0':$('childKerf').value),job=$('job').value.trim();
+ if(!(Number.isInteger(q)&&q>=1&&q<=100))return msg('splitMsg','本数は1〜100の整数で入れてください','bad');
  if(len===null||isNaN(len)||len<=0)return msg('splitMsg','子材の長さを確認してください','bad');
  if(kerf===null||isNaN(kerf)||kerf<0)return msg('splitMsg','切りしろは0以上で入れてください','bad');
  const need=rnd(q*(len+kerf)),rem=remain(p);
